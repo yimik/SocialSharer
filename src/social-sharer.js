@@ -30,25 +30,7 @@ var SocialSharer = function() {
     this.init.apply(this, arguments);
 };
 
-var defaults = SocialSharer.defaults = {
-    url: getOpenGraphByName("og:url") || getCanonicalURL() || location.href,
-    title: getOpenGraphByName("og:title") || document.title,
-    summary: getOpenGraphByName("og:description") || getMetaContentByName("description") || "",
-    pic: getOpenGraphByName("og:image") || (document.images.length ? document.images[0].src : ""),
-    source: getOpenGraphByName("og:site_name") || "",
-    weiboKey: "",
-    twitterVia: "",
-    twitterHashTags: "",
-    wechatTitle: "分享到微信",
-    wechatTip: "用微信「扫一扫」上方二维码即可。",
-    qrcodeSize: 260,
-    services: ["weibo", "wechat", "qzone", "qq", "douban", "yingxiang"],
-    classNamePrefix: "icon icon-",
-    onRender: null,
-    onClick: null
-};
-
-var templates = SocialSharer.templates = {
+SocialSharer.templates = {
     weibo: "http://service.weibo.com/share/share.php?url={url}&title={title}&pic={pic}&appkey={weiboKey}",
     qq: "http://connect.qq.com/widget/shareqq/index.html?url={url}&title={title}&summary={summary}&pics={pic}&site={source}",
     qzone: "http://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?url={url}&title={title}&summary={summary}&pics={pic}&site={source}",
@@ -64,24 +46,35 @@ var templates = SocialSharer.templates = {
     webshare: "javascript:;"
 };
 
-SocialSharer.addService = function(name, template) {
-    templates[name] = template;
-    template.replace(/\{(.*?)\}/g, function(match, key) {
-        defaults[key] = "";
-    });
-};
-
 SocialSharer.prototype = {
     constructor: SocialSharer,
 
     init: function(container, options) {
+        this.templates = extend({},SocialSharer.templates);
+        this.defaults = {
+            url: getOpenGraphByName("og:url") || getCanonicalURL() || location.href,
+            title: getOpenGraphByName("og:title") || document.title,
+            summary: getOpenGraphByName("og:description") || getMetaContentByName("description") || "",
+            pic: getOpenGraphByName("og:image") || (document.images.length ? document.images[0].src : ""),
+            source: getOpenGraphByName("og:site_name") || "",
+            weiboKey: "",
+            twitterVia: "",
+            twitterHashTags: "",
+            wechatTitle: "分享到微信",
+            wechatTip: "用微信「扫一扫」上方二维码即可。",
+            qrcodeSize: 260,
+            services: ["weibo", "wechat", "qzone", "qq", "douban", "yingxiang"],
+            classNamePrefix: "icon icon-",
+            onRender: null,
+            onClick: null
+        };
         this.container = typeof container === "string" ? document.querySelector(container) : container;
 
         if (this.container._SocialSharer) return;
 
         this.container._SocialSharer = this;
 
-        this.options = extend(defaults, this.mergeOptions(options || {}));
+        this.options = extend(this.defaults, this.mergeOptions(options || {}));
         this.options.qrcodeSize *= Math.min(2, window.devicePixelRatio || 1);
 
         this.createIcons();
@@ -90,7 +83,7 @@ SocialSharer.prototype = {
     mergeOptions: function(options) {
         var key, value;
 
-        for (key in defaults) {
+        for (key in this.defaults) {
             if (key === "onRender" || key === "onClick") continue;
 
             value = this.container.getAttribute("data-" + key.replace(/[A-Z]/g, "-$&").toLowerCase());
@@ -180,7 +173,7 @@ SocialSharer.prototype = {
     },
 
     getURL: function(service) {
-        var template = templates[service === "wechat" ? "qrcode" : service];
+        var template = this.templates[service === "wechat" ? "qrcode" : service];
         var options = this.options;
         return template ? template.replace(/\{(.*?)\}/g, function(match, key) {
             return encodeURIComponent(options[key]);
