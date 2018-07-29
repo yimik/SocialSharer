@@ -41,7 +41,7 @@ SocialSharer.templates = {
     linkedin: "http://www.linkedin.com/shareArticle?mini=true&url={url}&title={title}&summary={summary}&source={source}",
     evernote: "http://www.evernote.com/clip.action?url={url}&title={title}",
     yingxiang: "http://app.yinxiang.com/clip.action?url={url}&title={title}",
-    qrcode: "//pan.baidu.com/share/qrcode?w={qrcodeSize}&h={qrcodeSize}&url={url}",
+    qrcode: "//www.kuaizhan.com/common/encode-png?large=true&data={url}",
     email: "mailto:?subject={title}&body={url}",
     webshare: "javascript:;"
 };
